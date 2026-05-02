@@ -149,3 +149,21 @@ LGPL-3
 
 Dibuat untuk kebutuhan bisnis ritel Indonesia.
 Menggunakan Fonnte sebagai WhatsApp API gateway.
+
+---
+
+## 📞 Jasa Setup & Support
+
+Butuh bantuan instalasi, konfigurasi, atau kustomisasi module ini? Kami menyediakan jasa setup profesional.
+
+**Layanan:**
+- ✅ Instalasi dan konfigurasi Odoo POS
+- ✅ Setup module WhatsApp Receipt
+- ✅ Kustomisasi template struk
+- ✅ Training penggunaan sistem
+- ✅ Support teknis
+
+**Kontak:**
+- 📧 Email: fadlizarli68@gmail.com
+- 💬 WhatsApp: [+62 823-9711-4317](https://wa.me/6282397114317)
+
