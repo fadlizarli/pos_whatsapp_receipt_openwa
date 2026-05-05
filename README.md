@@ -162,8 +162,3 @@ Butuh bantuan instalasi, konfigurasi, atau kustomisasi module ini? Kami menyedia
 - ✅ Kustomisasi template struk
 - ✅ Training penggunaan sistem
 - ✅ Support teknis
-
-**Kontak:**
-- 📧 Email: fadlizarli68@gmail.com
-- 💬 WhatsApp: [+62 823-9711-4317](https://wa.me/6282397114317)
-
