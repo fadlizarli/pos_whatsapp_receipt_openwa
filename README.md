@@ -11,6 +11,7 @@ Module Odoo 17 untuk mengirim struk POS via WhatsApp menggunakan [OpenWA](https:
 ## Fitur
 
 - Kirim struk otomatis ke WhatsApp pelanggan setelah transaksi
+- Nomor WA customer **otomatis terisi** dari data kontak pelanggan
 - Tampilan struk lengkap: logo toko, kasir, item, metode pembayaran, kembalian
 - Link struk bisa dibuka tanpa login (public access)
 - Responsive di mobile
@@ -91,9 +92,15 @@ Masuk ke **Settings → WhatsApp Receipt**:
 | Field | Keterangan | Contoh |
 |-------|-----------|--------|
 | **Base URL** | URL server OpenWA | `http://192.168.1.10:2785` |
-| **API Key** | API key dari OpenWA | `owk_xxxxxxxxxxxx` |
-| **Session ID** | Nama sesi WhatsApp | `default` |
+| **API Key** | API key dari OpenWA | `owa_k1_xxxxxxxxxxxx` |
+| **Session ID** | UUID sesi WhatsApp (bukan nama) | `086fa308-03f2-4725-9fba-c339de489394` |
 | **Template Pesan** | Template dengan variabel `{total}`, `{date}`, `{receipt_url}` | Lihat contoh di bawah |
+
+> **Penting:** Session ID harus menggunakan **UUID**, bukan nama sesi. Dapatkan UUID dari dashboard OpenWA atau via API:
+> ```bash
+> curl -s http://IP-SERVER:2785/api/sessions -H "x-api-key: API_KEY_ANDA"
+> ```
+> Salin nilai `"id"` dari response JSON.
 
 **Contoh template pesan:**
 
@@ -119,11 +126,12 @@ sudo -u odoo psql -d NAMA_DATABASE -c \
 ## Cara Pakai
 
 1. Buka POS dan lakukan transaksi seperti biasa
-2. Setelah payment, muncul kolom WhatsApp di halaman struk
-3. Masukkan nomor WA pelanggan (format: `08xxx` atau `628xxx`)
-4. Klik tombol kirim
-5. Pelanggan menerima pesan WA dengan link struk lengkap
-6. Link struk dapat dibuka tanpa perlu login ke Odoo
+2. Pilih customer yang sudah ada nomor HP-nya di kontak Odoo
+3. Setelah payment, kolom WhatsApp **otomatis terisi** nomor customer
+4. Jika belum terisi, masukkan manual (format: `08xxx` atau `628xxx`)
+5. Klik tombol hijau WhatsApp
+6. Pelanggan menerima pesan WA dengan link struk lengkap
+7. Link struk dapat dibuka tanpa perlu login ke Odoo
 
 ---
 
@@ -181,9 +189,13 @@ pos_whatsapp_receipt/
 
 ## Changelog
 
+### v17.0.2.1.0
+- Nomor WA customer otomatis terisi dari kontak saat layar struk terbuka
+- Fix asset path sesuai nama folder module
+
 ### v17.0.2.0.0
 - Migrasi dari Fonnte ke OpenWA (self-hosted)
-- Ganti konfigurasi token/sender dengan Base URL, API Key, Session ID
+- Ganti konfigurasi token/sender dengan Base URL, API Key, Session ID (UUID)
 - Update endpoint API ke format OpenWA
 
 ### v17.0.1.0.0
