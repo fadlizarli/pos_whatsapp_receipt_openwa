@@ -7,14 +7,13 @@ import { _t } from "@web/core/l10n/translation";
 patch(ReceiptScreen.prototype, {
     setup() {
         super.setup();
-    },
-
-    async sendWhatsApp() {
         const partner = this.currentOrder.get_partner();
         if (!this.orderUiState.waPhone && partner?.phone) {
             this.orderUiState.waPhone = partner.phone;
         }
+    },
 
+    async sendWhatsApp() {
         const phone = this.orderUiState.waPhone;
         if (!phone) {
             this.orderUiState.waSending = false;

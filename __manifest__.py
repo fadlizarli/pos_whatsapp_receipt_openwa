@@ -10,8 +10,8 @@
     ],
     'assets': {
         'point_of_sale._assets_pos': [
-            'pos_whatsapp_receipt/static/src/xml/receipt_button.xml',
-            'pos_whatsapp_receipt/static/src/js/receipt_button.js',
+            'pos_whatsapp_receipt_openwa/static/src/xml/receipt_button.xml',
+            'pos_whatsapp_receipt_openwa/static/src/js/receipt_button.js',
         ],
     },
     'installable': True,
