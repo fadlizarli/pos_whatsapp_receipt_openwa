@@ -14,19 +14,19 @@ class PosOrder(models.Model):
             return {'success': False, 'error': 'Order not found'}
 
         params = self.env['ir.config_parameter'].sudo()
-        token = params.get_param('pos_whatsapp_receipt.fonnte_token')
-        sender = params.get_param('pos_whatsapp_receipt.fonnte_sender')
-        template = params.get_param('pos_whatsapp_receipt.fonnte_message_template')
+        base_url = params.get_param('pos_whatsapp_receipt.openwa_base_url')
+        api_key = params.get_param('pos_whatsapp_receipt.openwa_api_key')
+        session_id = params.get_param('pos_whatsapp_receipt.openwa_session_id') or 'default'
+        template = params.get_param('pos_whatsapp_receipt.openwa_message_template')
 
-        if not token:
-            return {'success': False, 'error': 'Fonnte token belum dikonfigurasi'}
+        if not base_url or not api_key:
+            return {'success': False, 'error': 'OpenWA belum dikonfigurasi (Base URL dan API Key wajib diisi)'}
 
-        base_url = params.get_param('web.base.url')
-        long_url = f"{base_url}/pos/ticket/validate?access_token={order.access_token}"
+        web_base_url = params.get_param('web.base.url')
+        long_url = f"{web_base_url}/pos/ticket/validate?access_token={order.access_token}"
 
         try:
             r = requests.get(f"https://tinyurl.com/api-create.php?url={long_url}", timeout=5)
-            _logger.info("TinyURL: %s -> %s", long_url, r.text)
             receipt_url = r.text.strip() if r.status_code == 200 else long_url
         except Exception as e:
             _logger.error("TinyURL error: %s", str(e))
@@ -42,22 +42,21 @@ class PosOrder(models.Model):
         if phone.startswith('0'):
             phone = '62' + phone[1:]
 
-        try:
-            data = {'target': phone, 'message': message, 'countryCode': '62'}
-            if sender:
-                data['sender'] = sender.strip().replace('+', '')
+        chat_id = f"{phone}@c.us"
 
+        try:
             response = requests.post(
-                'https://api.fonnte.com/send',
-                headers={'Authorization': token},
-                data=data,
+                f"{base_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text",
+                headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
+                json={'chatId': chat_id, 'text': message},
                 timeout=10
             )
-            result = response.json()
-            _logger.info("Fonnte result: %s", result)
-            if result.get('status'):
+            if response.status_code in (200, 201):
                 return {'success': True}
             else:
-                return {'success': False, 'error': result.get('reason', 'Gagal kirim pesan')}
+                result = response.json() if response.content else {}
+                error_msg = result.get('message') or result.get('error') or f"HTTP {response.status_code}"
+                _logger.error("OpenWA error: %s", result)
+                return {'success': False, 'error': error_msg}
         except Exception as e:
             return {'success': False, 'error': str(e)}

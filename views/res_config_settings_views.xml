@@ -7,15 +7,18 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app string="WhatsApp Receipt" name="pos_whatsapp_receipt" logo="/pos_whatsapp_receipt/static/description/icon.png">
-                    <block title="Fonnte WhatsApp API" name="fonnte_config">
-                        <setting string="API Token" help="Token dari akun Fonnte (md.fonnte.com)">
-                            <field name="fonnte_token" password="True"/>
+                    <block title="OpenWA WhatsApp API" name="openwa_config">
+                        <setting string="Base URL" help="URL server OpenWA, contoh: http://localhost:2785">
+                            <field name="openwa_base_url" placeholder="http://localhost:2785"/>
                         </setting>
-                        <setting string="Nomor Pengirim" help="Nomor WhatsApp terhubung ke Fonnte (628xxx)">
-                            <field name="fonnte_sender" placeholder="628xxxxxxxxxx"/>
+                        <setting string="API Key" help="API key dari OpenWA (buat di menu Auth > API Keys)">
+                            <field name="openwa_api_key" password="True"/>
+                        </setting>
+                        <setting string="Session ID" help="ID sesi WhatsApp di OpenWA (contoh: default)">
+                            <field name="openwa_session_id" placeholder="default"/>
                         </setting>
                         <setting string="Template Pesan" help="Variabel: {total} {date} {receipt_url}">
-                            <field name="fonnte_message_template" widget="text"/>
+                            <field name="openwa_message_template" widget="text"/>
                         </setting>
                     </block>
                 </app>

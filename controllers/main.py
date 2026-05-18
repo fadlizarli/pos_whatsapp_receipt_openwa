@@ -14,15 +14,16 @@ class PosWhatsAppReceipt(http.Controller):
             return {'success': False, 'error': 'Order not found'}
 
         params = request.env['ir.config_parameter'].sudo()
-        token = params.get_param('pos_whatsapp_receipt.fonnte_token')
-        sender = params.get_param('pos_whatsapp_receipt.fonnte_sender')
-        template = params.get_param('pos_whatsapp_receipt.fonnte_message_template')
+        base_url = params.get_param('pos_whatsapp_receipt.openwa_base_url')
+        api_key = params.get_param('pos_whatsapp_receipt.openwa_api_key')
+        session_id = params.get_param('pos_whatsapp_receipt.openwa_session_id') or 'default'
+        template = params.get_param('pos_whatsapp_receipt.openwa_message_template')
 
-        if not token:
-            return {'success': False, 'error': 'Fonnte token belum dikonfigurasi'}
+        if not base_url or not api_key:
+            return {'success': False, 'error': 'OpenWA belum dikonfigurasi (Base URL dan API Key wajib diisi)'}
 
-        base_url = params.get_param('web.base.url')
-        receipt_url = f"{base_url}/resit/lihat?access_token={order.access_token}"
+        web_base_url = params.get_param('web.base.url')
+        receipt_url = f"{web_base_url}/resit/lihat?access_token={order.access_token}"
 
         message = template.format(
             total=f"Rp {order.amount_total:,.0f}",
@@ -34,22 +35,22 @@ class PosWhatsAppReceipt(http.Controller):
         if phone.startswith('0'):
             phone = '62' + phone[1:]
 
-        try:
-            data = {'target': phone, 'message': message, 'countryCode': '62'}
-            if sender:
-                data['sender'] = sender.strip().replace('+', '')
+        chat_id = f"{phone}@c.us"
 
+        try:
             response = requests.post(
-                'https://api.fonnte.com/send',
-                headers={'Authorization': token},
-                data=data,
+                f"{base_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text",
+                headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
+                json={'chatId': chat_id, 'text': message},
                 timeout=10
             )
-            result = response.json()
-            if result.get('status'):
+            if response.status_code in (200, 201):
                 return {'success': True}
             else:
-                return {'success': False, 'error': result.get('reason', 'Gagal kirim pesan')}
+                result = response.json() if response.content else {}
+                error_msg = result.get('message') or result.get('error') or f"HTTP {response.status_code}"
+                _logger.error("OpenWA error: %s", result)
+                return {'success': False, 'error': error_msg}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 

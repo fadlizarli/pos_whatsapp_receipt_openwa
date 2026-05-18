@@ -1,8 +1,8 @@
 {
     'name': 'POS WhatsApp Receipt',
-    'version': '17.0.1.0.0',
+    'version': '17.0.2.0.0',
     'category': 'Point of Sale',
-    'summary': 'Kirim resit POS via WhatsApp menggunakan Fonnte',
+    'summary': 'Kirim resit POS via WhatsApp menggunakan OpenWA',
     'depends': ['point_of_sale', 'web'],
     'data': [
         'views/res_config_settings_views.xml',
