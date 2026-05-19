@@ -101,6 +101,8 @@ Masuk ke **Settings → WhatsApp Receipt**:
 > curl -s http://IP-SERVER:2785/api/sessions -H "x-api-key: API_KEY_ANDA"
 > ```
 > Salin nilai `"id"` dari response JSON.
+>
+> **Catatan:** UUID berubah setiap kali sesi dihapus dan dibuat ulang. Jika mengganti sesi, update kembali Session ID di **Settings → WhatsApp Receipt**.
 
 **Contoh template pesan:**
 
@@ -159,6 +161,20 @@ Jika status `disconnected` atau `failed`, restart sesi dengan UUID-nya:
 curl -s -X POST 'http://localhost:2785/api/sessions/UUID_SESI/start' -H 'x-api-key: API_KEY_ANDA'
 ```
 Kemudian buka dashboard OpenWA → klik sesi → **View** → scan QR code ulang.
+
+**Session ID di Odoo perlu diupdate**
+
+Jika sesi dihapus dan dibuat ulang, UUID berubah. Update di:
+**Settings → WhatsApp Receipt → Session ID** → isi UUID baru → Save.
+
+Test kirim pesan untuk verifikasi:
+```bash
+curl -s -X POST 'http://localhost:2785/api/sessions/UUID_SESI/messages/send-text' \
+  -H 'x-api-key: API_KEY_ANDA' \
+  -H 'Content-Type: application/json' \
+  -d '{"chatId":"628xxxxxxxxxx@c.us","text":"Test dari OpenWA"}' | python3 -m json.tool
+```
+Jika muncul `messageId` di response → berhasil.
 
 **Error koneksi ke OpenWA**
 - Pastikan port `2785` bisa diakses dari server Odoo
