@@ -43,10 +43,15 @@ class PosWhatsAppReceipt(http.Controller):
         try:
             if company.logo:
                 logo_b64 = company.logo.decode('utf-8') if isinstance(company.logo, bytes) else company.logo
+                # Deteksi MIME type dari header base64
+                if logo_b64.startswith('/9j/'):
+                    mimetype = 'image/jpeg'
+                else:
+                    mimetype = 'image/png'
                 payload = {
                     'chatId': chat_id,
-                    'base64': f"data:image/png;base64,{logo_b64}",
-                    'mimetype': 'image/png',
+                    'base64': logo_b64,
+                    'mimetype': mimetype,
                     'filename': 'logo.png',
                     'caption': message,
                 }
