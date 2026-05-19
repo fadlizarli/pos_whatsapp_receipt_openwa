@@ -36,31 +36,14 @@ class PosWhatsAppReceipt(http.Controller):
             phone = '62' + phone[1:]
 
         chat_id = f"{phone}@c.us"
-        company = order.company_id
-        openwa_url = base_url.rstrip('/')
-        headers = {'x-api-key': api_key, 'Content-Type': 'application/json'}
 
         try:
-            if company.logo:
-                logo_b64 = company.logo.decode('utf-8') if isinstance(company.logo, bytes) else company.logo
-                # Deteksi MIME type dari header base64
-                if logo_b64.startswith('/9j/'):
-                    mimetype = 'image/jpeg'
-                else:
-                    mimetype = 'image/png'
-                payload = {
-                    'chatId': chat_id,
-                    'base64': logo_b64,
-                    'mimetype': mimetype,
-                    'filename': 'logo.png',
-                    'caption': message,
-                }
-                endpoint = f"{openwa_url}/api/sessions/{session_id}/messages/send-image"
-            else:
-                payload = {'chatId': chat_id, 'text': message}
-                endpoint = f"{openwa_url}/api/sessions/{session_id}/messages/send-text"
-
-            response = requests.post(endpoint, headers=headers, json=payload, timeout=15)
+            response = requests.post(
+                f"{base_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text",
+                headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
+                json={'chatId': chat_id, 'text': message},
+                timeout=10
+            )
             if response.status_code in (200, 201):
                 return {'success': True}
             else:
