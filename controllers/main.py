@@ -1,3 +1,4 @@
+import base64
 import requests
 import logging
 from odoo import http
@@ -115,12 +116,22 @@ class PosWhatsAppReceipt(http.Controller):
         phone_html = f'<p>{company.phone}</p>' if company.phone else ''
         email_html = f'<p>{company.email}</p>' if company.email else ''
 
+        web_base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        og_url = f"{web_base_url}/resit/lihat?access_token={access_token}"
+        og_image = f"{web_base_url}/resit/logo?access_token={access_token}" if company.logo else ''
+        og_description = f"Total: Rp {order.amount_total:,.0f} | {order.date_order.strftime('%d/%m/%Y %H:%M')}"
+
         html = f'''<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk Pembayaran</title>
+    <title>Struk Pembayaran - {company.name}</title>
+    <meta property="og:title" content="Struk Pembayaran - {company.name}"/>
+    <meta property="og:description" content="{og_description}"/>
+    <meta property="og:url" content="{og_url}"/>
+    <meta property="og:type" content="website"/>
+    {'<meta property="og:image" content="' + og_image + '"/>' if og_image else ''}
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{ font-family: Arial, sans-serif; background: #f0f0f0; padding: 16px; }}
@@ -184,3 +195,16 @@ class PosWhatsAppReceipt(http.Controller):
 </html>'''
 
         return Response(html, content_type='text/html;charset=utf-8')
+
+    @http.route('/resit/logo', type='http', auth='public')
+    def receipt_logo(self, access_token=None, **kwargs):
+        if not access_token:
+            return request.not_found()
+        order = request.env['pos.order'].sudo().search([
+            ('access_token', '=', access_token)
+        ], limit=1)
+        if not order or not order.company_id.logo:
+            return request.not_found()
+        logo_bytes = base64.b64decode(order.company_id.logo)
+        return Response(logo_bytes, content_type='image/png',
+                        headers=[('Cache-Control', 'public, max-age=86400')])
