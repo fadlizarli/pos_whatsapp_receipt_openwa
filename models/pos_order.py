@@ -23,14 +23,23 @@ class PosOrder(models.Model):
             return {'success': False, 'error': 'OpenWA belum dikonfigurasi (Base URL dan API Key wajib diisi)'}
 
         web_base_url = params.get_param('web.base.url')
-        long_url = f"{web_base_url}/pos/ticket/validate?access_token={order.access_token}"
+        long_url = f"{web_base_url}/resit/lihat?access_token={order.access_token}"
 
-        try:
-            r = requests.get(f"https://tinyurl.com/api-create.php?url={long_url}", timeout=5)
-            receipt_url = r.text.strip() if r.status_code == 200 else long_url
-        except Exception as e:
-            _logger.error("TinyURL error: %s", str(e))
-            receipt_url = long_url
+        yourls_url = params.get_param('pos_whatsapp_receipt.yourls_url')
+        yourls_signature = params.get_param('pos_whatsapp_receipt.yourls_signature')
+        receipt_url = long_url
+        if yourls_url and yourls_signature:
+            try:
+                r = requests.post(
+                    f"{yourls_url.rstrip('/')}/yourls-api.php",
+                    data={'signature': yourls_signature, 'action': 'shorturl', 'url': long_url, 'format': 'json'},
+                    timeout=5
+                )
+                data = r.json()
+                if data.get('status') == 'success' and data.get('shorturl'):
+                    receipt_url = data['shorturl']
+            except Exception as e:
+                _logger.warning("YOURLS shortening failed: %s", str(e))
 
         message = template.format(
             total=f"Rp {order.amount_total:,.0f}",

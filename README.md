@@ -89,10 +89,12 @@ http://IP-SERVER:2886
 
 Masuk ke **Settings → WhatsApp Receipt**:
 
+### OpenWA
+
 | Field | Keterangan | Contoh |
 |-------|-----------|--------|
 | **Base URL** | URL server OpenWA | `http://192.168.1.10:2785` |
-| **API Key** | API key dari OpenWA | `owa_k1_xxxxxxxxxxxx` |
+| **API Key** | API key dari OpenWA (buat di menu Auth > API Keys) | `owa_k1_xxxxxxxxxxxx` |
 | **Session ID** | UUID sesi WhatsApp (bukan nama) | `086fa308-03f2-4725-9fba-c339de489394` |
 | **Template Pesan** | Template dengan variabel `{total}`, `{date}`, `{receipt_url}` | Lihat contoh di bawah |
 
@@ -103,6 +105,20 @@ Masuk ke **Settings → WhatsApp Receipt**:
 > Salin nilai `"id"` dari response JSON.
 >
 > **Catatan:** UUID berubah setiap kali sesi dihapus dan dibuat ulang. Jika mengganti sesi, update kembali Session ID di **Settings → WhatsApp Receipt**.
+
+### YOURLS URL Shortener (Opsional)
+
+| Field | Keterangan | Contoh |
+|-------|-----------|--------|
+| **YOURLS URL** | URL server YOURLS | `https://s.domain.com` |
+| **Signature Token** | Token dari YOURLS (Tools > Secure passwordless API call) | `abc123xyz` |
+
+Jika YOURLS dikonfigurasi, link struk di pesan WA akan dipersingkat otomatis. Jika tidak dikonfigurasi, link panjang tetap digunakan.
+
+**Cara mendapatkan Signature Token YOURLS:**
+1. Login ke dashboard YOURLS
+2. Buka **Tools → Secure passwordless API call**
+3. Salin **Secret signature token**
 
 **Contoh template pesan:**
 
@@ -216,6 +232,10 @@ pos_whatsapp_receipt/
 ---
 
 ## Changelog
+
+### v17.0.2.2.0
+- Integrasi YOURLS untuk mempersingkat link struk di pesan WA
+- Ganti TinyURL dengan YOURLS self-hosted (konfigurasi opsional)
 
 ### v17.0.2.1.0
 - Nomor WA customer otomatis terisi dari kontak saat layar struk terbuka

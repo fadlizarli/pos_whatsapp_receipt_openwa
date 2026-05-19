@@ -15,7 +15,7 @@ class ResConfigSettings(models.TransientModel):
     )
     openwa_session_id = fields.Char(
         string='Session ID',
-        help='ID sesi WhatsApp di OpenWA (contoh: default)',
+        help='UUID sesi WhatsApp di OpenWA',
         config_parameter='pos_whatsapp_receipt.openwa_session_id',
         default='default'
     )
@@ -30,4 +30,14 @@ Tanggal: {date}
 
 Lihat resit lengkap:
 {receipt_url}"""
+    )
+    yourls_url = fields.Char(
+        string='YOURLS URL',
+        help='URL server YOURLS, contoh: https://s.domain.com',
+        config_parameter='pos_whatsapp_receipt.yourls_url'
+    )
+    yourls_signature = fields.Char(
+        string='YOURLS Signature Token',
+        help='Signature token dari YOURLS (Tools > Secure passwordless API call)',
+        config_parameter='pos_whatsapp_receipt.yourls_signature'
     )
