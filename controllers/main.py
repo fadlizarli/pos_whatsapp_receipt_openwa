@@ -36,14 +36,26 @@ class PosWhatsAppReceipt(http.Controller):
             phone = '62' + phone[1:]
 
         chat_id = f"{phone}@c.us"
+        company = order.company_id
+        openwa_url = base_url.rstrip('/')
+        headers = {'x-api-key': api_key, 'Content-Type': 'application/json'}
 
         try:
-            response = requests.post(
-                f"{base_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text",
-                headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
-                json={'chatId': chat_id, 'text': message},
-                timeout=10
-            )
+            if company.logo:
+                logo_b64 = company.logo.decode('utf-8') if isinstance(company.logo, bytes) else company.logo
+                payload = {
+                    'chatId': chat_id,
+                    'base64': f"data:image/png;base64,{logo_b64}",
+                    'mimetype': 'image/png',
+                    'filename': 'logo.png',
+                    'caption': message,
+                }
+                endpoint = f"{openwa_url}/api/sessions/{session_id}/messages/send-image"
+            else:
+                payload = {'chatId': chat_id, 'text': message}
+                endpoint = f"{openwa_url}/api/sessions/{session_id}/messages/send-text"
+
+            response = requests.post(endpoint, headers=headers, json=payload, timeout=15)
             if response.status_code in (200, 201):
                 return {'success': True}
             else:
