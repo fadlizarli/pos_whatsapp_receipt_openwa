@@ -21,6 +21,14 @@
                             <field name="openwa_message_template" widget="text"/>
                         </setting>
                     </block>
+                    <block title="YOURLS URL Shortener" name="yourls_config">
+                        <setting string="YOURLS URL" help="URL server YOURLS, contoh: https://s.domain.com">
+                            <field name="yourls_url" placeholder="https://s.domain.com"/>
+                        </setting>
+                        <setting string="Signature Token" help="Signature token dari YOURLS (Tools > Secure passwordless API call)">
+                            <field name="yourls_signature" password="True"/>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

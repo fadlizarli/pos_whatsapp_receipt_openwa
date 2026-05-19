@@ -23,7 +23,23 @@ class PosWhatsAppReceipt(http.Controller):
             return {'success': False, 'error': 'OpenWA belum dikonfigurasi (Base URL dan API Key wajib diisi)'}
 
         web_base_url = params.get_param('web.base.url')
-        receipt_url = f"{web_base_url}/resit/lihat?access_token={order.access_token}"
+        long_url = f"{web_base_url}/resit/lihat?access_token={order.access_token}"
+
+        yourls_url = params.get_param('pos_whatsapp_receipt.yourls_url')
+        yourls_signature = params.get_param('pos_whatsapp_receipt.yourls_signature')
+        receipt_url = long_url
+        if yourls_url and yourls_signature:
+            try:
+                r = requests.post(
+                    f"{yourls_url.rstrip('/')}/yourls-api.php",
+                    data={'signature': yourls_signature, 'action': 'shorturl', 'url': long_url, 'format': 'json'},
+                    timeout=5
+                )
+                data = r.json()
+                if data.get('status') == 'success' and data.get('shorturl'):
+                    receipt_url = data['shorturl']
+            except Exception as e:
+                _logger.warning("YOURLS shortening failed: %s", str(e))
 
         message = template.format(
             total=f"Rp {order.amount_total:,.0f}",
@@ -93,7 +109,8 @@ class PosWhatsAppReceipt(http.Controller):
         company = order.company_id
         logo_html = ''
         if company.logo:
-            logo_html = f'<img src="/web/image/res.company/{company.id}/logo" style="max-height:60px; margin-bottom:8px;"/>'
+            logo_b64 = company.logo.decode('utf-8') if isinstance(company.logo, bytes) else company.logo
+            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-height:60px; margin-bottom:8px;"/>'
 
         phone_html = f'<p>{company.phone}</p>' if company.phone else ''
         email_html = f'<p>{company.email}</p>' if company.email else ''
