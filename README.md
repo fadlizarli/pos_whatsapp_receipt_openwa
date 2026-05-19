@@ -148,6 +148,18 @@ sudo -u odoo psql -d NAMA_DATABASE -c \
 - Cek log Odoo: `sudo journalctl -u odoo -n 50`
 - Cek log OpenWA: `docker compose logs -f`
 
+**Sesi WhatsApp disconnect / failed setelah VPS restart**
+
+Cek status sesi via API:
+```bash
+curl -s 'http://localhost:2785/api/sessions' -H 'x-api-key: API_KEY_ANDA' | python3 -m json.tool
+```
+Jika status `disconnected` atau `failed`, restart sesi dengan UUID-nya:
+```bash
+curl -s -X POST 'http://localhost:2785/api/sessions/UUID_SESI/start' -H 'x-api-key: API_KEY_ANDA'
+```
+Kemudian buka dashboard OpenWA → klik sesi → **View** → scan QR code ulang.
+
 **Error koneksi ke OpenWA**
 - Pastikan port `2785` bisa diakses dari server Odoo
 - Jika Odoo dan OpenWA di server berbeda, pastikan firewall mengizinkan koneksi
